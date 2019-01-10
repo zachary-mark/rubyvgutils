@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 # genie.rb: encode/decode game genie codes
+# nes:  handy documentation at http://tuxnes.sourceforge.net/gamegenie.html on the format of game genie codes.
 
 module Charmap
   A = 0x0
@@ -29,5 +30,17 @@ def validate_code(code)
   return true
 end
 
-puts validate_code "AAEAULPA"
-puts validate_code "BABABA"
+def test_validate_code()
+  unless validate_code "AAEAULPA" then return false end
+  if validate_code "BABABA" then return false end
+end
+
+def decode(gg_code)
+  raise NoMethodError
+end
+
+def encode(address, value)
+  raise NoMethodError
+end
+
+if test_validate_code then return 0 else return -1 end
