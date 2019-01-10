@@ -3,6 +3,6 @@ a collection of video game and/or emulation related utilities, in the ruby langu
 
 be nice.  this is some of the first ruby code i've written and i am open to constructive criticism.  or tear it apart, as long as i get better.
 
-= genious =
+## genious
 
-a utility for translating game genie codes to/from the address/data overwrite pairing.  inspired by dctucker/game_genie_translator.
+a utility for translating (currently only NES) game genie codes to/from the address/data overwrite pairing.  inspired by dctucker/game_genie_translator.
