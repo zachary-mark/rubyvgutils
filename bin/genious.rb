@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 # genie.rb: encode/decode game genie codes
-# nes:  handy documentation at http://tuxnes.sourceforge.net/gamegenie.html on the code format 
+# nes:  handy documentation at http://tuxnes.sourceforge.net/gamegenie.html on the code format
 
 module Charmap
   A = 0x0
@@ -19,6 +19,12 @@ module Charmap
   S = 0xD
   V = 0xE
   N = 0xF
+  def letter(num)
+    Charmap.constants.each { |con|
+      if Charmap.const_get(con) == num then return con
+    }
+    raise ValueError
+  end
 end
 
 def valid_code?(code)
@@ -42,7 +48,7 @@ def decode(gg_code)
   code.split('').each { |ch|
     n.push(Charmap.const_get(ch))
   }
-  address = 0x8000 + (((n[3] & 7) << 12) | ((n[5] & 7) << 8) | 
+  address = 0x8000 + (((n[3] & 7) << 12) | ((n[5] & 7) << 8) |
                      ((n[4] & 8) << 8)  | ((n[2] & 7) << 4) |
                      ((n[1] & 8) << 4)  | (n[4] & 7) |
                      (n[3] & 8))
@@ -60,7 +66,34 @@ def decode(gg_code)
 end
 
 def encode(address, value, compare)
-  raise NoMethodError
+  bytes = Array.new
+  bytes[0] |= 7 & value
+  bytes[0] |= 8 & (value >> 4)
+
+  bytes[1] |= 8 & (address >> 4)
+  bytes[1] |= 7 & (value >> 4)
+
+  bytes[2] |= 7 & (address >> 4)
+
+  bytes[3] |= 7 & (address >> 12)
+  bytes[3] |= 8 & address
+
+  bytes[4] |= 7 & address
+  bytes[4] |= 8 & (address >> 8)
+
+  if compare == nil then
+    bytes[5] |= 7 & (address >> 8)
+    bytes[5] |= 8 & value
+  else
+    bytes[5] |= 7 & (address >> 8)
+    bytes[5] |= 8 & compare
+
+    bytes[6] |= 7 & compare
+    bytes[6] |= 8 & (compare >> 4)
+
+    bytes[7] |= 7 & (compare >> 4)
+    bytes[7] |= 8 & data
+  end
 end
 
 #unless test_valid_code? then return -1 end
