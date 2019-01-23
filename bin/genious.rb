@@ -19,11 +19,16 @@ module Charmap
   S = 0xD
   V = 0xE
   N = 0xF
-  def letter(num)
+
+  # TODO:  There has got to be a more efficient way to do this
+  # than searching the class constant list every single time;
+  # I'm wondering if I can somehow build a module-level singleton pattern
+  # that calculates it once a la "if nil then build map else return from map"
+  def Charmap.letter(num)
     Charmap.constants.each { |con|
-      if Charmap.const_get(con) == num then return con
+      if Charmap.const_get(con) == num then return con.to_s end
     }
-    raise ValueError
+    raise ArgumentError
   end
 end
 
@@ -67,36 +72,43 @@ end
 
 def encode(address, value, compare)
   bytes = Array.new
-  bytes[0] |= 7 & value
+  bytes[0] = 7 & value
   bytes[0] |= 8 & (value >> 4)
 
-  bytes[1] |= 8 & (address >> 4)
+  bytes[1] = 8 & (address >> 4)
   bytes[1] |= 7 & (value >> 4)
 
-  bytes[2] |= 7 & (address >> 4)
+  bytes[2] = 7 & (address >> 4)
+  bytes[2] |= 8
 
-  bytes[3] |= 7 & (address >> 12)
+  bytes[3] = 7 & (address >> 12)
   bytes[3] |= 8 & address
 
-  bytes[4] |= 7 & address
+  bytes[4] = 7 & address
   bytes[4] |= 8 & (address >> 8)
 
   if compare == nil then
-    bytes[5] |= 7 & (address >> 8)
+    bytes[5] = 7 & (address >> 8)
     bytes[5] |= 8 & value
   else
-    bytes[5] |= 7 & (address >> 8)
+    bytes[5] = 7 & (address >> 8)
     bytes[5] |= 8 & compare
 
-    bytes[6] |= 7 & compare
+    bytes[6] = 7 & compare
     bytes[6] |= 8 & (compare >> 4)
 
-    bytes[7] |= 7 & (compare >> 4)
-    bytes[7] |= 8 & data
+    bytes[7] = 7 & (compare >> 4)
+    bytes[7] |= 8 & value
   end
+
+  return bytes.map { |by| Charmap.letter(by) }.join
 end
 
-#unless test_valid_code? then return -1 end
-decode("GOSSIP").each { |st|
-  unless st == nil then puts st.to_s(16) end
-}
+def encode_decode_debug_test(code)
+  addr, value, compare = decode(code)
+  puts "addr: #{addr.to_s(16)}, value: #{value.to_s(16)}, compare: #{if compare == nil then 'nil' else compare.to_s(16) end}"
+  puts encode(addr, value, compare)
+end
+
+encode_decode_debug_test("GOSSIP")
+encode_decode_debug_test("AAEAULPA")
