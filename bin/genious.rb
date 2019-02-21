@@ -128,6 +128,7 @@ when "encode"
       puts encode(args[0].to_i(16), args[1].to_i(16), if args.length == 3 then args[2].to_i(16) else nil end)
     rescue
       puts "error:  invalid codespec #{codespec}"
+      exit 1
     end
   }
 when "decode"
