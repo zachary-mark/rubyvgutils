@@ -2,6 +2,8 @@
 # genie.rb: encode/decode game genie codes
 # nes:  handy documentation at http://tuxnes.sourceforge.net/gamegenie.html on the code format
 
+require 'optparse'
+
 module Charmap
   A = 0x0
   P = 0x1
@@ -110,5 +112,30 @@ def encode_decode_debug_test(code)
   puts encode(addr, value, compare)
 end
 
-encode_decode_debug_test("GOSSIP")
-encode_decode_debug_test("AAEAULPA")
+USAGE = "usage:  #{$PROGRAM_NAME} (encode|decode) <code|addr,val,compare>..."
+
+if ARGV.length < 2 then
+   puts USAGE
+   exit 1
+end
+
+case ARGV[0].downcase
+when "encode"
+  puts "thinkin' about encoding thos beans"
+when "decode"
+  ARGV[1..-1].each { |code|
+    begin
+      addr, value, compare = decode(code)
+      puts "addr: #{addr.to_s(16)}, value: #{value.to_s(16)}, compare: #{if compare == nil then 'nil' else compare.to_s(16) end}"
+    rescue ArgumentError
+      puts "error:  invalid code:  #{code}"
+      exit 1
+    end
+  }
+when "test"
+  encode_decode_debug_test("GOSSIP")
+  encode_decode_debug_test("AAEAULPA")
+else
+  puts USAGE
+  exit 1
+end
