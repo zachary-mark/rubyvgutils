@@ -121,7 +121,15 @@ end
 
 case ARGV[0].downcase
 when "encode"
-  puts "thinkin' about encoding thos beans"
+  ARGV[1..-1].each { |codespec|
+    begin
+      args = codespec.split(',')
+      if args.length < 2 || args.length > 3 then raise ArgumentError end
+      puts encode(args[0].to_i(16), args[1].to_i(16), if args.length == 3 then args[2].to_i(16) else nil end)
+    rescue
+      puts "error:  invalid codespec #{codespec}"
+    end
+  }
 when "decode"
   ARGV[1..-1].each { |code|
     begin
